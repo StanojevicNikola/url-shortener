@@ -1,0 +1,63 @@
+version: "3.7"
+
+services:
+  postgres:
+    container_name: urlshortener_postgres
+    image: postgres:12
+    volumes:
+      - postgres:/data/postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=urlshortener
+      - POSTGRES_USER=urlshortener
+      - POSTGRES_PASSWORD=urlshortener
+    networks:
+      - urlshortener
+
+  pgadmin:
+    container_name: urlshortener_pgadmin
+    image: dpage/pgadmin4:latest
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=urlsh@urlshortener.com
+      - PGADMIN_DEFAULT_PASSWORD=urlsh123
+    volumes:
+      - pgadmin:/root/.pgadmin
+    ports:
+      - "5050:80"
+    networks:
+      - urlshortener
+
+  rabbitmq:
+    container_name: urlshortener_rabbitmq
+    image: rabbitmq:3-management
+    hostname: my-rabbit
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    networks:
+      - urlshortener
+
+  redis:
+    container_name: urlshortener_redis
+    image: redis
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
+    ports:
+      - "6379:6379"
+    expose:
+      - 6379
+    volumes:
+      - "redis:/redis/data"
+    networks:
+      - urlshortener
+
+volumes:
+  postgres:
+  pgadmin:
+  redis:
+
+networks:
+  urlshortener:
+    name: urlshortener-net
